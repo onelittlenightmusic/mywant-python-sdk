@@ -24,9 +24,15 @@ class WantsResource:
             payload["name"] = name
         return WantExecution.from_dict(self._c._post("/api/v1/wants", payload, expected=201))
 
-    def list(self) -> list[WantExecution]:
-        """List all want executions."""
-        return [WantExecution.from_dict(d) for d in self._c._get("/api/v1/wants")]
+    def list(self) -> list[dict]:
+        """List all wants. Returns raw dicts (server format: {execution_id, timestamp, wants[]})."""
+        resp = self._c._get("/api/v1/wants")
+        # actual server wraps result: {"execution_id": "...", "wants": [...]}
+        if isinstance(resp, dict) and "wants" in resp:
+            return resp["wants"]
+        if isinstance(resp, list):
+            return resp
+        return []
 
     def delete_all(self) -> None:
         """Delete all want executions."""
