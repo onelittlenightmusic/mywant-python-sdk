@@ -114,6 +114,17 @@ class MyWantClient:
             return None
         return resp.json()
 
+    def _put_yaml(self, path: str, yaml_content: str) -> Any:
+        resp = self._http.put(
+            self.base_url + path,
+            content=yaml_content.encode(),
+            headers={"Content-Type": "application/yaml"},
+        )
+        self._raise_for(resp)
+        if resp.status_code == 204 or not resp.content:
+            return None
+        return resp.json()
+
     def _delete(self, path: str, *, expected: int = 200) -> Any:
         resp = self._http.delete(self.base_url + path)
         self._raise_for(resp)

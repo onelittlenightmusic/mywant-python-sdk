@@ -13,16 +13,17 @@ class WantsResource:
     def __init__(self, client: "MyWantClient") -> None:
         self._c = client
 
-    def create(self, config: Union[str, dict], name: Optional[str] = None) -> WantExecution:
-        """Deploy a new want from YAML string or dict. Returns the created execution."""
+    def create(self, config: Union[str, dict], name: Optional[str] = None) -> dict:
+        """Deploy a new want. Sends raw YAML with Content-Type: application/yaml.
+
+        The server inherits requires/finalResultField from the want type definition,
+        so you do NOT need to include them in the spec.
+        """
         if isinstance(config, dict):
             yaml_str = yaml.dump(config, allow_unicode=True)
         else:
             yaml_str = config
-        payload: dict[str, Any] = {"yaml": yaml_str}
-        if name:
-            payload["name"] = name
-        return WantExecution.from_dict(self._c._post("/api/v1/wants", payload, expected=201))
+        return self._c._post_yaml("/api/v1/wants", yaml_str, expected=201)
 
     def list(self) -> list[dict]:
         """List all wants. Returns raw dicts (server format: {execution_id, timestamp, wants[]})."""
@@ -42,13 +43,13 @@ class WantsResource:
         """Get runtime state of a want execution."""
         return WantRuntimeState.from_dict(self._c._get(f"/api/v1/wants/{id}"))
 
-    def update(self, id: str, config: Union[str, dict]) -> WantExecution:
+    def update(self, id: str, config: Union[str, dict]) -> dict:
         """Update an existing (non-running) want."""
         if isinstance(config, dict):
             yaml_str = yaml.dump(config, allow_unicode=True)
         else:
             yaml_str = config
-        return WantExecution.from_dict(self._c._put(f"/api/v1/wants/{id}", {"yaml": yaml_str}))
+        return self._c._put_yaml(f"/api/v1/wants/{id}", yaml_str)
 
     def delete(self, id: str) -> None:
         """Delete a want execution."""
@@ -107,7 +108,7 @@ class WantsResource:
             yaml_str = yaml.dump(config, allow_unicode=True)
         else:
             yaml_str = config
-        return ValidationResult.from_dict(self._c._post("/api/v1/wants/validate", {"yaml": yaml_str}))
+        return ValidationResult.from_dict(self._c._post_yaml("/api/v1/wants/validate", yaml_str))
 
     def export(self) -> str:
         """Export all wants as a YAML string."""

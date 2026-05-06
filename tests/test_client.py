@@ -34,11 +34,11 @@ def test_create_want(client, httpx_mock):
     httpx_mock.add_response(
         url="http://test/api/v1/wants",
         status_code=201,
-        json={"id": "want-abc-1234", "status": "created", "config": {"wants": []}},
+        json={"id": "want-abc-1234", "status": "created", "want_ids": ["want-abc-1234"], "wants": 1},
     )
-    ex = client.wants.create("wants:\n  - metadata:\n      name: test\n      type: queue\n    spec:\n      params: {}\n")
-    assert ex.id == "want-abc-1234"
-    assert ex.status == "created"
+    result = client.wants.create("wants:\n  - metadata:\n      name: test\n      type: queue\n    spec:\n      params: {}\n")
+    assert result["id"] == "want-abc-1234"
+    assert result["status"] == "created"
 
 
 def test_not_found_raises(client, httpx_mock):
