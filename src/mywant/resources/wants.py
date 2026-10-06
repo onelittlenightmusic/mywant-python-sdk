@@ -35,6 +35,24 @@ class WantsResource:
             return resp
         return []
 
+    def patch(
+        self,
+        id: str,
+        labels: Optional[dict[str, Optional[str]]] = None,
+        params: Optional[dict[str, Any]] = None,
+    ) -> dict:
+        """Change some of a want's labels and params and leave the rest
+        (PATCH /api/v1/wants/{id}, a JSON merge patch). A key set to None is
+        removed — e.g. ``patch(id, labels={"mywant.io/archived": None})``
+        brings an archived want back.
+        """
+        body: dict[str, Any] = {}
+        if labels:
+            body["metadata"] = {"labels": labels}
+        if params:
+            body["spec"] = {"params": params}
+        return self._c._patch(f"/api/v1/wants/{id}", body)
+
     def delete_all(self) -> None:
         """Delete all want executions."""
         self._c._delete("/api/v1/wants", expected=204)

@@ -60,3 +60,19 @@ def test_validate_want(client, httpx_mock):
     result = client.wants.validate("wants:\n  - metadata:\n      name: t\n      type: queue\n    spec:\n      params: {}\n")
     assert result.valid is True
     assert result.want_count == 1
+
+
+def test_patch_want(client, httpx_mock):
+    httpx_mock.add_response(
+        url="http://test/api/v1/wants/want-1",
+        method="PATCH",
+        json={"metadata": {"id": "want-1", "labels": {}}},
+    )
+    client.wants.patch("want-1", labels={"mywant.io/archived": None}, params={"to": "銀座"})
+    sent = httpx_mock.get_request()
+    import json
+    assert sent.method == "PATCH"
+    assert json.loads(sent.content) == {
+        "metadata": {"labels": {"mywant.io/archived": None}},
+        "spec": {"params": {"to": "銀座"}},
+    }

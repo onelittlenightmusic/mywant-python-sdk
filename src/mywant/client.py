@@ -114,6 +114,13 @@ class MyWantClient:
             return None
         return resp.json()
 
+    def _patch(self, path: str, payload: Any) -> Any:
+        resp = self._http.patch(self.base_url + path, json=payload)
+        self._raise_for(resp)
+        if resp.status_code == 204 or not resp.content:
+            return None
+        return resp.json()
+
     def _put_yaml(self, path: str, yaml_content: str) -> Any:
         resp = self._http.put(
             self.base_url + path,
