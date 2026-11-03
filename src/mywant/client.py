@@ -10,10 +10,15 @@ import httpx
 from .exceptions import APIError, ConflictError, NotFoundError, ValidationError
 from .resources.agents import AgentsResource
 from .resources.capabilities import CapabilitiesResource
+from .resources.character_skills import CharacterSkillsResource
+from .resources.characters import CharactersResource
+from .resources.constellations import ConstellationsResource
+from .resources.devices import DevicesResource
 from .resources.labels import LabelsResource
 from .resources.plugins import PluginsResource
 from .resources.recipes import RecipesResource
 from .resources.system import SystemResource
+from .resources.things import ThingsResource
 from .resources.utilities import ReactionsResource, UtilitiesResource, WebhooksResource
 from .resources.want_types import WantTypesResource
 from .resources.wants import WantsResource
@@ -46,6 +51,11 @@ class MyWantClient:
         self.utilities = UtilitiesResource(self)
         self.webhooks = WebhooksResource(self)
         self.reactions = ReactionsResource(self)
+        self.things = ThingsResource(self)
+        self.constellations = ConstellationsResource(self)
+        self.characters = CharactersResource(self)
+        self.devices = DevicesResource(self)
+        self.character_skills = CharacterSkillsResource(self)
 
     def close(self) -> None:
         self._http.close()
@@ -106,6 +116,12 @@ class MyWantClient:
         if resp.status_code == 204 or not resp.content:
             return None
         return resp.json()
+
+    def _post_text(self, path: str) -> str:
+        """A POST answered in text (an export's YAML)."""
+        resp = self._http.post(self.base_url + path)
+        self._raise_for(resp)
+        return resp.text
 
     def _put(self, path: str, payload: Any) -> Any:
         resp = self._http.put(self.base_url + path, json=payload)
