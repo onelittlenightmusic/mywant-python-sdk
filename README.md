@@ -1,5 +1,11 @@
 # mywant-python-sdk
 
+> **Moved.** This SDK now lives in the MyWant repository, as
+> [`client-py`](https://github.com/onelittlenightmusic/MyWant/tree/master/client-py)
+> (its code in `engine/core/pysdk/mywant`). It is the same `mywant` package,
+> resource style (`Client().wants.list()`, `.things.create(...)`), standard
+> library only. `MyWantClient` is now `Client`. This repository is archived.
+
 Python SDK for the [MyWant](https://github.com/hrk-osaki/mywant) API.
 
 ## Installation
